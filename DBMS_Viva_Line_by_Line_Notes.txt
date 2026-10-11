@@ -1,0 +1,266 @@
+DBMS PRACTICALS - VIVA NOTES
+Based on the three SQL files uploaded:
+1. crud.sql
+2. Wherepracticals.sql
+3. joinspractical.sql
+
+IMPORTANT: RENAMING FILES
+Renaming a .sql file does not change the SQL code inside it and does not affect MySQL.
+The names crud.sql, Wherepracticals.sql and joinspractical.sql are fine.
+Keep the .sql extension so MySQL Workbench can open the files normally.
+
+============================================================
+COMMON SETUP USED IN ALL THREE FILES
+============================================================
+
+CREATE DATABASE IF NOT EXISTS college;
+- CREATE DATABASE creates a new database.
+- IF NOT EXISTS prevents an error if a database named college already exists.
+- If the database already exists, MySQL gives a warning and keeps using it.
+
+USE college;
+- Selects college as the active database.
+- The following SQL statements run inside this database unless another database is selected.
+
+CREATE TABLE Student (
+ id INT PRIMARY KEY,
+ name VARCHAR(50) NOT NULL,
+ age INT,
+ city VARCHAR(50),
+ marks INT
+);
+- CREATE TABLE Student creates a table named Student.
+- id INT: id stores an integer.
+- PRIMARY KEY: makes id unique and does not allow NULL values.
+- name VARCHAR(50): stores a name of up to 50 characters.
+- NOT NULL: name must have a value.
+- age INT: stores the student's age as an integer.
+- city VARCHAR(50): stores the city name.
+- marks INT: stores marks as an integer.
+- The closing parenthesis and semicolon finish the CREATE TABLE statement.
+
+INSERT INTO Student VALUES
+(1, 'Jay', 20, 'Surat', 85),
+(2, 'Amit', 21, 'Vadodara', 70),
+(3, 'Ravi', 22, 'Surat', 90),
+(4, 'Neha', 20, 'Ahmedabad', 65),
+(5, 'Raj', 21, 'Vadodara', 80);
+- INSERT INTO adds records to the Student table.
+- Each set of values represents one student.
+- Values follow the table column order: id, name, age, city, marks.
+- Text values are written inside single quotes.
+- The semicolon ends the complete INSERT statement.
+
+============================================================
+PRACTICAL 1: CRUD OPERATIONS - crud.sql
+============================================================
+
+INSERT INTO Student VALUES (6, 'Priya', 20, 'Surat', 88);
+- Adds a new student record.
+- Priya has id 6, age 20, city Surat and marks 88.
+
+SELECT * FROM Student;
+- SELECT retrieves data from a table.
+- The asterisk (*) means all columns.
+- Displays all records currently in Student.
+
+UPDATE Student SET marks = 92 WHERE id = 6;
+- UPDATE changes existing data in a table.
+- SET marks = 92 changes the marks value to 92.
+- WHERE id = 6 identifies which student's record must be changed.
+- Without WHERE, every row could be updated.
+
+DELETE FROM Student WHERE id = 6;
+- DELETE removes records from a table.
+- WHERE id = 6 selects Priya's record for deletion.
+- Without WHERE, all rows in the table could be deleted.
+
+WHAT CRUD MEANS
+- C = Create: add a record. In this practical, INSERT is used.
+- R = Read: retrieve records. SELECT is used.
+- U = Update: modify records. UPDATE is used.
+- D = Delete: remove records. DELETE is used.
+
+============================================================
+PRACTICAL 3: WHERE CONDITIONS - Wherepracticals.sql
+============================================================
+
+SELECT * FROM Student WHERE marks > 75 AND city = 'Surat';
+- Displays all columns for students who satisfy BOTH conditions.
+- marks > 75 means marks must be greater than 75.
+- AND means both conditions must be true.
+- city = 'Surat' means the student's city must be Surat.
+
+SELECT * FROM Student WHERE city = 'Surat' OR age = 21;
+- Displays students whose city is Surat OR whose age is 21.
+- OR means at least one of the conditions must be true.
+
+SELECT * FROM Student WHERE marks BETWEEN 70 AND 90;
+- Displays students whose marks are in the range 70 to 90.
+- BETWEEN includes both boundary values: 70 and 90.
+
+SELECT * FROM Student WHERE city IN ('Surat', 'Vadodara');
+- Displays students whose city matches any value in the list.
+- IN is a shorter way to check several possible values.
+
+SELECT * FROM Student WHERE name LIKE 'R%';
+- LIKE is used for pattern matching in text.
+- 'R%' means the name starts with the letter R.
+- The percent sign (%) represents zero or more characters.
+
+============================================================
+PRACTICAL 6: SQL JOINS - joinspractical.sql
+============================================================
+
+At the beginning of this file:
+
+CREATE DATABASE IF NOT EXISTS college;
+USE college;
+- Creates the database if needed and selects it.
+
+DROP TABLE IF EXISTS Course;
+- Deletes Course if it already exists.
+- Course is dropped first because it has a foreign key referring to Student.
+
+DROP TABLE IF EXISTS Student;
+- Deletes Student if it already exists.
+- This lets the file recreate the Student table and its sample data.
+- WARNING: dropping a table deletes its data.
+
+The CREATE TABLE Student statement and INSERT INTO Student statement:
+- Create the same Student table and insert the same five sample students described in Common Setup above.
+
+CREATE TABLE Course (
+ course_id INT PRIMARY KEY,
+ student_id INT,
+ course_name VARCHAR(30),
+ FOREIGN KEY (student_id) REFERENCES Student(id)
+);
+- Creates a table named Course.
+- course_id INT PRIMARY KEY: unique identifier for each course record.
+- student_id INT: stores the id of the student associated with the course.
+- course_name VARCHAR(30): stores the course name, up to 30 characters.
+- FOREIGN KEY (student_id) REFERENCES Student(id): student_id must refer to an id that exists in Student.
+- This links Course records to Student records.
+
+INSERT INTO Course VALUES
+(101, 1, 'BCA'), (102, 2, 'BBA'), (103, 3, 'BCA');
+- Inserts three course records.
+- Course 101 belongs to student 1 and is BCA.
+- Course 102 belongs to student 2 and is BBA.
+- Course 103 belongs to student 3 and is BCA.
+
+SELECT s.name, c.course_name FROM Student s
+INNER JOIN Course c ON s.id = c.student_id;
+- Student s gives Student the short alias s.
+- Course c gives Course the short alias c.
+- INNER JOIN returns rows where a student has a matching course record.
+- ON s.id = c.student_id specifies how the two tables are matched.
+- Displays the student's name and course name.
+
+SELECT s.name, c.course_name FROM Student s
+LEFT JOIN Course c ON s.id = c.student_id;
+- LEFT JOIN keeps every row from the left table, Student.
+- Matching course names are displayed where available.
+- Students without a matching course have NULL for course_name.
+
+SELECT s.name, c.course_name FROM Student s
+RIGHT JOIN Course c ON s.id = c.student_id;
+- RIGHT JOIN keeps every row from the right table, Course.
+- It displays matching student names and course names.
+- If a course had no matching student, the student name would be NULL.
+- In this file, the foreign key ensures each Course student_id refers to a Student.
+
+SELECT s.name, c.course_name FROM Student s CROSS JOIN Course c;
+- CROSS JOIN combines every Student row with every Course row.
+- It produces every possible combination of the two tables' rows.
+- With 5 students and 3 courses, it produces 15 combinations.
+
+SELECT a.name, b.name, a.city FROM Student a
+JOIN Student b ON a.city = b.city AND a.id < b.id;
+- This is a SELF JOIN: the Student table is joined with itself.
+- a and b are two aliases for the same Student table.
+- a.city = b.city finds students from the same city.
+- a.id < b.id prevents a student from being paired with themselves.
+- It also avoids displaying the same pair in reverse order.
+- The query displays both student names and their shared city.
+
+============================================================
+COMMON VIVA QUESTIONS AND SHORT ANSWERS
+============================================================
+
+1. What is SQL?
+SQL stands for Structured Query Language. It is used to create, manage and retrieve data from relational databases.
+
+2. What is a database?
+A database is an organized collection of data.
+
+3. What is a table?
+A table stores data in rows and columns.
+
+4. What is a primary key?
+A primary key uniquely identifies each row in a table. It cannot contain duplicate or NULL values.
+
+5. What is a foreign key?
+A foreign key is a column that refers to a key in another table and creates a relationship between tables.
+
+6. What is the difference between DELETE and DROP?
+DELETE removes rows from a table. DROP TABLE removes the entire table structure and its data.
+
+7. What is the difference between WHERE and HAVING?
+WHERE filters rows before grouping. HAVING filters grouped results. (HAVING is not used in these three uploaded practical files.)
+
+8. What is the difference between AND and OR?
+AND requires all conditions to be true. OR requires at least one condition to be true.
+
+9. What does BETWEEN do?
+It checks whether a value is within a range, including both endpoints.
+
+10. What does IN do?
+It checks whether a value matches one of the values in a list.
+
+11. What does LIKE do?
+It matches text against a pattern. For example, 'R%' finds names beginning with R.
+
+12. What is a JOIN?
+A JOIN combines related rows from two or more tables using a matching condition.
+
+13. What is INNER JOIN?
+It returns rows that have matching values in both joined tables.
+
+14. What is LEFT JOIN?
+It returns all rows from the left table and matching rows from the right table. Missing matches appear as NULL.
+
+15. What is RIGHT JOIN?
+It returns all rows from the right table and matching rows from the left table. Missing matches appear as NULL.
+
+16. What is CROSS JOIN?
+It returns every possible combination of rows from the two tables.
+
+17. What is SELF JOIN?
+It joins a table to itself, usually by using aliases.
+
+18. Why are aliases s, c, a and b used?
+Aliases are short temporary names for tables. They make queries shorter and help distinguish tables, especially in a self join.
+
+19. What does NULL mean?
+NULL represents a missing or unknown value. It is different from zero or an empty string.
+
+20. Why is WHERE important in UPDATE and DELETE?
+WHERE limits which rows are changed or deleted. Without it, all rows may be affected.
+
+============================================================
+IMPORTANT PRACTICE NOTES FOR THE EXAM
+============================================================
+
+- Keep the .sql extension when renaming SQL files. File names do not change the SQL statements.
+- Each file includes its own database and table setup, so it is designed to be run independently on a fresh database.
+- A new Workbench connection to the same MySQL Server can still see the same databases.
+- If you run crud.sql or Wherepracticals.sql again on the same database, CREATE TABLE Student may report that Student already exists.
+- joinspractical.sql contains DROP TABLE IF EXISTS Course and DROP TABLE IF EXISTS Student. It resets those tables before recreating them. Running it deletes the old data in those tables.
+- On a fresh exam computer, run the required file once after connecting to a running MySQL Server.
+- Execute one practical file at a time.
+- Check the Action Output panel for errors and the result grid for SELECT query output.
+
+SOURCE LIMITATION
+These notes explain only the SQL statements and table structure present in the three uploaded files. The viva questions include short definitions to help explain those statements; they are not additional SQL practical programs.
